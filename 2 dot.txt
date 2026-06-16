@@ -1,0 +1,84 @@
+//crete two or more ec2 instances then 
+
+//in cmd
+dir C:\Users\%USERNAME%\Downloads\*.pem
+cd Downloads
+scp -i Ansii.pem Ansii.pem ubuntu@<ANSIBLE_SERVER_PUBLIC_IP>:/home/ubuntu/
+//Are you sure you want to continue connecting (yes/no)?
+
+
+
+//In ansible ansible server 
+ls -l /home/ubuntu/Ansii.pem
+
+chmod 400 /home/ubuntu/Ansii.pem
+
+ls -l /home/ubuntu/Ansii.pem
+
+//-r-------- 1 ubuntu ubuntu ... expected output 
+ssh -i /home/ubuntu/Ansii.pem ubuntu@<private_ip_node>
+
+
+exit 
+
+sudo apt update
+
+sudo apt install ansible -y
+
+ansible --version
+
+mkdir flodername
+
+cd flodername
+
+
+nano inventory
+
+//inside file write this
+[node1]
+172.31.20.52 ansible_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/Ansii.pem
+
+
+ansible -i inventory all -m ping
+
+
+//it is a default inventory file
+sudo nano /etc/ansible/hosts
+[node1]
+172.31.20.52 ansible_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/Ansii.pem
+ansible all -m ping
+ansible-playbook first-playbook.yml
+
+
+//output
+172.31.20.52 | SUCCESS => {
+    "ping": "pong"
+}
+
+
+//To create a file
+nano first-playbook.yml
+
+
+//inside that playbook file
+---
+- name: My First Ansible Playbook
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Create a file on target node
+      file:
+        path: /home/ubuntu/ansible_test.txt
+        state: touch
+        
+        
+ansible-playbook -i inventory first-playbook.yml
+
+
+
+//If node2 is not connecting means run this command
+ssh -vvv -i /home/ubuntu/Ansii.pem ubuntu@<NODE2_IP>
+
+//If after ping i get an error means i have to run this command
+ansible -i inventory all -m ping -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
